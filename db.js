@@ -11,9 +11,7 @@ let db = new sqlite3.Database('./students.sqlite', (err) => {
 const createTableQuery = `CREATE TABLE IF NOT EXISTS students (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   firstname TEXT NOT NULL,
-  lastname TEXT NOT NULL,
-  gender TEXT NOT NULL,
-  age TEXT
+  lastname TEXT NOT NULL
 )`;
 
 db.run(createTableQuery, (err) => {

@@ -1,98 +1,88 @@
-from flask import Flask, request,jsonify, render_template
-import  json
-import sqlite3
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const bodyParser = require('body-parser');
 
-app = Flask(__name__)
+const app = express();
+const PORT = 8000;
 
-#an in memory students storage(using a list)
-#students = []
-#instead of a list,we need to create a connection to database where we store students
-def db_connection():
-	conn = None
-	try:
-		conn = sqlite3.connect('students.sqlite')
-	except sqlite3.error as e:
-		print(e)
-	return conn
+// Middleware para parsear datos del body
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-@app.route("/students" , methods=["GET","POST"])
-def students():
-	#access the db connection
-	conn = db_connection()
-	#access the cursor object
-	cursor = conn.cursor()
+// Conexión a la base de datos
+const db = new sqlite3.Database('students.sqlite', (err) => {
+  if (err) return console.error('Error al conectar con la base de datos', err.message);
+  console.log('Conectado a la base de datos SQLite');
+});
 
-#createing our GET request for all students
-	if request.method == "GET":
-		cursor = conn.execute("SELECT * FROM students")
-		students = [
-		  dict(id = row[0], firstname = row[1], lastname = row[2], gender = row[3] , age = row[4])
-		  for row in cursor.fetchall()
-		]
+// Crear tabla si no existe
+db.run(`
+  CREATE TABLE IF NOT EXISTS students (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    firstname TEXT NOT NULL,
+    lastname TEXT NOT NULL,
+    gender TEXT NOT NULL,
+    age INTEGER
+  )
+`);
 
-		if students is not None:
-			return jsonify(students)
-#createing our POST request for a student
-	if request.method == "POST":
-		firstname = request.form["firstname"]
-		lastname = request.form["lastname"]
-		gender = request.form["gender"]
-		age  = request.form["age"]
-		#SQL  query to INSERT a student INTO our database
-		sql = """INSERT INTO students (firstname, lastname, gender, age)
-				 VALUES (?, ?, ?, ?) """
+// GET todos los estudiantes
+app.get('/students', (req, res) => {
+  db.all('SELECT * FROM students', [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
 
-		cursor = cursor.execute(sql, (firstname, lastname, gender, age))
-		conn.commit()
-		return f"Student with id: {cursor.lastrowid} created successfully"
+// POST nuevo estudiante
+app.post('/students', (req, res) => {
+  const { firstname, lastname, gender, age } = req.body;
+  if (!firstname || !lastname || !gender || !age) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios' });
+  }
 
-#a route with all the neccesary request methods for a single student	
-@app.route('/student/<int:id>',methods=[ "GET", "PUT", "DELETE" ])
-def student(id):
-	conn = db_connection()
-	cursor = conn.cursor()
-	student = None
+  const sql = 'INSERT INTO students (firstname, lastname, gender, age) VALUES (?, ?, ?, ?)';
+  db.run(sql, [firstname, lastname, gender, age], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(201).json({ message: 'Estudiante creado', id: this.lastID });
+  });
+});
 
-#createing our GET request for a student
-	if request.method == "GET":
-		cursor.execute("SELECT * FROM students WHERE id=?",(id,) )
-		rows = cursor.fetchall()
-		for row in rows:
-			student = row
-		if student is not None:
-			return jsonify(student), 200
-		else:
-			return "Something went wrong", 404
+// GET estudiante por ID
+app.get('/student/:id', (req, res) => {
+  const { id } = req.params;
+  db.get('SELECT * FROM students WHERE id = ?', [id], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!row) return res.status(404).json({ error: 'Estudiante no encontrado' });
+    res.json(row);
+  });
+});
 
-#createing our PUT request for a student
-	if request.method == "PUT":
-		sql = """ UPDATE students SET firstname = ?,lastname = ?, gender = ? , age = ?
-				  WHERE id = ? """
+// PUT actualizar estudiante
+app.put('/student/:id', (req, res) => {
+  const { id } = req.params;
+  const { firstname, lastname, gender, age } = req.body;
 
-		firstname = request.form["firstname"]
-		lastname = request.form["lastname"]
-		gender = request.form["gender"]
-		age = request.form["age"]
+  const sql = 'UPDATE students SET firstname = ?, lastname = ?, gender = ?, age = ? WHERE id = ?';
+  db.run(sql, [firstname, lastname, gender, age, id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: 'Estudiante no encontrado' });
+    res.json({ message: 'Estudiante actualizado' });
+  });
+});
 
-		updated_student = {
-			"id": id,
-			"firstname": firstname,
-			"lastname" : lastname,
-			"gender" : gender,
-			"age" : age
-		}
+// DELETE estudiante
+app.delete('/student/:id', (req, res) => {
+  const { id } = req.params;
+  db.run('DELETE FROM students WHERE id = ?', [id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: 'Estudiante no encontrado' });
+    res.json({ message: `Estudiante con ID ${id} eliminado` });
+  });
+});
 
-		conn.execute(sql,(firstname, lastname, gender, age, id))
-		conn.commit()
-		return jsonify(updated_student)
+// Iniciar servidor
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en http://0.0.0.0:${PORT}`);
+});
 
-#createing our DELETE request for a student
-	if request.method == "DELETE":
-		sql= """ DELETE FROM students WHERE id=? """
-		conn.execute(sql, (id,))
-		conn.commit()
-
-		return "The Student with id: {} has been deleted.".format(id),200
-
-if __name__ == '__main__':
-   app.run(host='0.0.0.0', port=8000, debug=False)

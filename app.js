@@ -13,17 +13,18 @@ const db = new sqlite3.Database('students.sqlite', (err) => {
   console.log('Conectado a la base de datos SQLite');
 });
 
+// Cambié la creación de la tabla para que solo tenga nombre y correo
 db.run(`
   CREATE TABLE IF NOT EXISTS students (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     firstname TEXT NOT NULL,
-    lastname TEXT NOT NULL,
-    gender TEXT NOT NULL,
-    age INTEGER
+    lastname TEXT NOT NULL
   )
 `);
 
-// Cambia '/students' por '/personas'
+// Rutas para gestionar los estudiantes
+
+// Obtener todas las personas
 app.get('/personas', (req, res) => {
   db.all('SELECT * FROM students', [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -31,6 +32,7 @@ app.get('/personas', (req, res) => {
   });
 });
 
+// Crear una nueva persona
 app.post('/personas', (req, res) => {
   const { nombre, correo } = req.body;
   if (!nombre || !correo) {
@@ -44,7 +46,7 @@ app.post('/personas', (req, res) => {
   });
 });
 
-// Cambia '/student/:id' por '/persona/:id'
+// Obtener una persona por ID
 app.get('/persona/:id', (req, res) => {
   const { id } = req.params;
   db.get('SELECT * FROM students WHERE id = ?', [id], (err, row) => {
@@ -54,6 +56,7 @@ app.get('/persona/:id', (req, res) => {
   });
 });
 
+// Modificar una persona por ID
 app.put('/persona/:id', (req, res) => {
   const { id } = req.params;
   const { nombre, correo } = req.body;
@@ -66,6 +69,7 @@ app.put('/persona/:id', (req, res) => {
   });
 });
 
+// Eliminar una persona por ID
 app.delete('/persona/:id', (req, res) => {
   const { id } = req.params;
   db.run('DELETE FROM students WHERE id = ?', [id], function (err) {
@@ -73,4 +77,8 @@ app.delete('/persona/:id', (req, res) => {
     if (this.changes === 0) return res.status(404).json({ error: 'Persona no encontrada' });
     res.json({ message: `Persona con ID ${id} eliminada` });
   });
+});
+
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en http://0.0.0.0:${PORT}`);
 });

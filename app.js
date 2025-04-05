@@ -5,17 +5,14 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = 8000;
 
-// Middleware para parsear datos del body
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Conexión a la base de datos
 const db = new sqlite3.Database('students.sqlite', (err) => {
   if (err) return console.error('Error al conectar con la base de datos', err.message);
   console.log('Conectado a la base de datos SQLite');
 });
 
-// Crear tabla si no existe
 db.run(`
   CREATE TABLE IF NOT EXISTS students (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,7 +23,6 @@ db.run(`
   )
 `);
 
-// GET todos los estudiantes
 app.get('/students', (req, res) => {
   db.all('SELECT * FROM students', [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -34,7 +30,6 @@ app.get('/students', (req, res) => {
   });
 });
 
-// POST nuevo estudiante
 app.post('/students', (req, res) => {
   const { firstname, lastname, gender, age } = req.body;
   if (!firstname || !lastname || !gender || !age) {
@@ -48,7 +43,6 @@ app.post('/students', (req, res) => {
   });
 });
 
-// GET estudiante por ID
 app.get('/student/:id', (req, res) => {
   const { id } = req.params;
   db.get('SELECT * FROM students WHERE id = ?', [id], (err, row) => {
@@ -58,7 +52,6 @@ app.get('/student/:id', (req, res) => {
   });
 });
 
-// PUT actualizar estudiante
 app.put('/student/:id', (req, res) => {
   const { id } = req.params;
   const { firstname, lastname, gender, age } = req.body;
@@ -71,7 +64,6 @@ app.put('/student/:id', (req, res) => {
   });
 });
 
-// DELETE estudiante
 app.delete('/student/:id', (req, res) => {
   const { id } = req.params;
   db.run('DELETE FROM students WHERE id = ?', [id], function (err) {
@@ -81,7 +73,6 @@ app.delete('/student/:id', (req, res) => {
   });
 });
 
-// Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://0.0.0.0:${PORT}`);
 });

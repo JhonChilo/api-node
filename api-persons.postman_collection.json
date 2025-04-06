@@ -1,150 +1,180 @@
 {
   "info": {
-    "_postman_id": "dfce9114-1af8-4027-9ef9-dc92320d0afe",
-    "name": "api-personas",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "22979805",
-    "_collection_link": "https://s12222-8389.postman.co/workspace/2025-01-Test~86fa9dce-ca19-4cde-900d-99e18d01e572/collection/22979805-dfce9114-1af8-4027-9ef9-dc92320d0afe?action=share&source=collection_link&creator=22979805"
+    "_postman_id": "f8ff79c0-b779-4e4a-8760-e1f37be69d3b",
+    "name": "Users API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Nuevo Persona",
+      "name": "Get All Users",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://23.20.217.124:8001/users",
+          "protocol": "http",
+          "host": [
+            "23",
+            "20",
+            "217",
+            "124"
+          ],
+          "port": "8001",
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get User by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://23.20.217.124:8001/users/1",
+          "protocol": "http",
+          "host": [
+            "23",
+            "20",
+            "217",
+            "124"
+          ],
+          "port": "8001",
+          "path": [
+            "users",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create User",
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
-          "mode": "formdata",
-          "formdata": [
-            {
-              "key": "nombre",
-              "value": "Juan",
-              "type": "text"
-            },
-            {
-              "key": "correo",
-              "value": "juan.perez@example.com",
-              "type": "text"
-            }
-          ]
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"johndoe@example.com\"\n}"
         },
         "url": {
-          "raw": "http://13.218.34.230:8000/personas",
+          "raw": "http://23.20.217.124:8001/users",
           "protocol": "http",
           "host": [
-            "13",
-            "218",
-            "34",
-            "230"
+            "23",
+            "20",
+            "217",
+            "124"
           ],
-          "port": "8000",
+          "port": "8001",
           "path": [
-            "personas"
+            "users"
           ]
         }
       },
       "response": []
     },
     {
-      "name": "Leer Personas",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://13.218.34.230:8000/personas",
-          "protocol": "http",
-          "host": [
-            "13",
-            "218",
-            "34",
-            "230"
-          ],
-          "port": "8000",
-          "path": [
-            "personas"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Leer 1 Persona",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://13.218.34.230:8000/persona/1",
-          "protocol": "http",
-          "host": [
-            "13",
-            "218",
-            "34",
-            "230"
-          ],
-          "port": "8000",
-          "path": [
-            "persona",
-            "1"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Modificar 1 Persona",
+      "name": "Update User",
       "request": {
         "method": "PUT",
-        "header": [],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
-          "mode": "formdata",
-          "formdata": [
-            {
-              "key": "nombre",
-              "value": "Geraldo",
-              "type": "text"
-            },
-            {
-              "key": "correo",
-              "value": "geraldo.colchado@example.com",
-              "type": "text"
-            }
-          ]
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"email\": \"john_updated@example.com\"\n}"
         },
         "url": {
-          "raw": "http://13.218.34.230:8000/persona/1",
+          "raw": "http://23.20.217.124:8001/users/2",
           "protocol": "http",
           "host": [
-            "13",
-            "218",
-            "34",
-            "230"
+            "23",
+            "20",
+            "217",
+            "124"
           ],
-          "port": "8000",
+          "port": "8001",
           "path": [
-            "persona",
-            "1"
+            "users",
+            "2"
           ]
         }
       },
       "response": []
     },
     {
-      "name": "Eliminar Persona",
+      "name": "Patch User",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Carlos Partial Update\"\n}"
+        },
+        "url": {
+          "raw": "http://23.20.217.124:8001/users/:id",
+          "protocol": "http",
+          "host": [
+            "23",
+            "20",
+            "217",
+            "124"
+          ],
+          "port": "8001",
+          "path": [
+            "users",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete User",
       "request": {
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "http://13.218.34.230:8000/persona/1",
+          "raw": "http://23.20.217.124:8001/users/:id",
           "protocol": "http",
           "host": [
-            "13",
-            "218",
-            "34",
-            "230"
+            "23",
+            "20",
+            "217",
+            "124"
           ],
-          "port": "8000",
+          "port": "8001",
           "path": [
-            "persona",
-            "1"
+            "users",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
           ]
         }
       },

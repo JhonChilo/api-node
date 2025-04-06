@@ -22,10 +22,4 @@ db.run(createTableQuery, (err) => {
   }
 });
 
-db.close((err) => {
-  if (err) {
-    console.error("Error al cerrar la base de datos:", err.message);
-  } else {
-    console.log('Conexión cerrada.');
-  }
-});
+module.exports = db;
